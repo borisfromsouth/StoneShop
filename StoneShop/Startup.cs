@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using StoneShop.Data;
-using StoneShop.Utility;
+using StoneShop_DataAccess;
+using StoneShop_Utility;
 using System;
 
 namespace StoneShop

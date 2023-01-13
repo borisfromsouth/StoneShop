@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace StoneShop.Models
+namespace StoneShop_Models
 {
     public class Product
     {

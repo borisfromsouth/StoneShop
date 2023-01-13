@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using StoneShop.Data;
+using StoneShop_DataAccess;
 
 [assembly: HostingStartup(typeof(StoneShop.Areas.Identity.IdentityHostingStartup))]
 namespace StoneShop.Areas.Identity

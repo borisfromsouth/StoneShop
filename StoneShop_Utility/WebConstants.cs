@@ -1,4 +1,4 @@
-﻿namespace StoneShop
+﻿namespace StoneShop_Utility
 {
     public static class WebConstants
     {

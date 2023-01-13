@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace StoneShop.Models
+namespace StoneShop_Models
 {
     public class Category
     {

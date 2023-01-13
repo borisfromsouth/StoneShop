@@ -1,6 +1,6 @@
 using System;
 
-namespace StoneShop.Models
+namespace StoneShop_Models
 {
     public class ErrorViewModel
     {

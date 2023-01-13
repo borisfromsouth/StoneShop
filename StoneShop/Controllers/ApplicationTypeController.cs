@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StoneShop.Data;
-using StoneShop.Models;
+using StoneShop_DataAccess;
+using StoneShop_Models;
+using StoneShop_Utility;
 using System.Collections.Generic;
 
 namespace StoneShop.Controllers

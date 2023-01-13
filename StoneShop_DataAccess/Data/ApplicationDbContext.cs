@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using StoneShop.Models;
+using StoneShop_Models;
 
-namespace StoneShop.Data
+namespace StoneShop_DataAccess
 {
     public class ApplicationDbContext : IdentityDbContext
     {

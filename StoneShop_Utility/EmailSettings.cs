@@ -1,4 +1,4 @@
-﻿namespace StoneShop.Utility
+﻿namespace StoneShop_Utility
 {
     public class EmailSettings
     {

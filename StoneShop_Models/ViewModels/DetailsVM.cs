@@ -1,4 +1,4 @@
-﻿namespace StoneShop.Models.ViewModels
+﻿namespace StoneShop_Models.ViewModels
 {
     public class DetailsVM
     {

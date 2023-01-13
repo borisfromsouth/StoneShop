@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using StoneShop.Data;
+using StoneShop_DataAccess;
 
-namespace StoneShop.Migrations
+namespace StoneShop_DataAccess
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20230103102934_addShortDescription")]
@@ -20,7 +20,7 @@ namespace StoneShop.Migrations
                 .HasAnnotation("ProductVersion", "5.0.17")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("StoneShop.Models.ApplicationType", b =>
+            modelBuilder.Entity("StoneShop_Models.ApplicationType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,7 +36,7 @@ namespace StoneShop.Migrations
                     b.ToTable("ApplicationType");
                 });
 
-            modelBuilder.Entity("StoneShop.Models.Category", b =>
+            modelBuilder.Entity("StoneShop_Models.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -55,7 +55,7 @@ namespace StoneShop.Migrations
                     b.ToTable("Category");
                 });
 
-            modelBuilder.Entity("StoneShop.Models.Product", b =>
+            modelBuilder.Entity("StoneShop_Models.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -93,15 +93,15 @@ namespace StoneShop.Migrations
                     b.ToTable("Product");
                 });
 
-            modelBuilder.Entity("StoneShop.Models.Product", b =>
+            modelBuilder.Entity("StoneShop_Models.Product", b =>
                 {
-                    b.HasOne("StoneShop.Models.ApplicationType", "ApplicationType")
+                    b.HasOne("StoneShop_Models.ApplicationType", "ApplicationType")
                         .WithMany()
                         .HasForeignKey("ApplicationTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("StoneShop.Models.Category", "Category")
+                    b.HasOne("StoneShop_Models.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)

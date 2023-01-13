@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace StoneShop.Models.ViewModels
+namespace StoneShop_Models.ViewModels
 {
     public class ProductVM
     {

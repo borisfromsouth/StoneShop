@@ -1,7 +1,10 @@
 ﻿@page
+
+@using StoneShop_Utility
+
 @model RegisterModel
 
-@if (User.IsInRole(StoneShop.WebConstants.AdminRole))
+@if (User.IsInRole(WebConstants.AdminRole))
 {
     <h1>Register an Admin Account</h1>
 }
@@ -47,7 +50,7 @@ else
                 <input asp-for="Input.ConfirmPassword" class="form-control" />
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-            @if (User.IsInRole(StoneShop.WebConstants.AdminRole))
+            @if (User.IsInRole(WebConstants.AdminRole))
             {
                 <button type="submit" class="btn btn-warning">Register Admin User</button>
             }

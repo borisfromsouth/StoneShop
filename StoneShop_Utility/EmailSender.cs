@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 
-namespace StoneShop.Utility
+namespace StoneShop_Utility
 {
     public class EmailSender : IEmailSender
     {

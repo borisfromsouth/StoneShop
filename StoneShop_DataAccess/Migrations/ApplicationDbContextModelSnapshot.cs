@@ -3,17 +3,15 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using StoneShop.Data;
+using StoneShop_DataAccess;
 
-namespace StoneShop.Migrations
+namespace StoneShop_DataAccess
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230104121440_addUserTable")]
-    partial class addUserTable
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,12 +168,10 @@ namespace StoneShop.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -212,12 +208,10 @@ namespace StoneShop.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -227,7 +221,7 @@ namespace StoneShop.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("StoneShop.Models.ApplicationType", b =>
+            modelBuilder.Entity("StoneShop_Models.ApplicationType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -243,7 +237,7 @@ namespace StoneShop.Migrations
                     b.ToTable("ApplicationType");
                 });
 
-            modelBuilder.Entity("StoneShop.Models.Category", b =>
+            modelBuilder.Entity("StoneShop_Models.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -262,7 +256,7 @@ namespace StoneShop.Migrations
                     b.ToTable("Category");
                 });
 
-            modelBuilder.Entity("StoneShop.Models.Product", b =>
+            modelBuilder.Entity("StoneShop_Models.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -300,7 +294,7 @@ namespace StoneShop.Migrations
                     b.ToTable("Product");
                 });
 
-            modelBuilder.Entity("StoneShop.Models.User", b =>
+            modelBuilder.Entity("StoneShop_Models.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
@@ -361,15 +355,15 @@ namespace StoneShop.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("StoneShop.Models.Product", b =>
+            modelBuilder.Entity("StoneShop_Models.Product", b =>
                 {
-                    b.HasOne("StoneShop.Models.ApplicationType", "ApplicationType")
+                    b.HasOne("StoneShop_Models.ApplicationType", "ApplicationType")
                         .WithMany()
                         .HasForeignKey("ApplicationTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("StoneShop.Models.Category", "Category")
+                    b.HasOne("StoneShop_Models.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)

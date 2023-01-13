@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace StoneShop.Models
+namespace StoneShop_Models
 {
     public class User : IdentityUser
     {

@@ -13,7 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using StoneShop.Models;
+using StoneShop_Models;
+using StoneShop_Utility;
 
 namespace StoneShop.Areas.Identity.Pages.Account
 {

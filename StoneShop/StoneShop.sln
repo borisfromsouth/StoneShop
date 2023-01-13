@@ -5,7 +5,11 @@ VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoneShop", "StoneShop.csproj", "{3C4BAB0B-7076-4473-B7BF-CB227DEEB1AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoneShop_Utility", "..\StoneShop_Utility\StoneShop_Utility.csproj", "{93764115-E590-4FBF-96B2-3678195DBF21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoneShop_Utility", "..\StoneShop_Utility\StoneShop_Utility.csproj", "{93764115-E590-4FBF-96B2-3678195DBF21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoneShop_Models", "..\StoneShop_Models\StoneShop_Models.csproj", "{0E4DD6FA-B7B8-426F-8E37-6C54EB579C1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoneShop_DataAccess", "..\StoneShop_DataAccess\StoneShop_DataAccess.csproj", "{18B73A31-4A03-4B5D-BE24-7B2E99C63C0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{93764115-E590-4FBF-96B2-3678195DBF21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93764115-E590-4FBF-96B2-3678195DBF21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93764115-E590-4FBF-96B2-3678195DBF21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E4DD6FA-B7B8-426F-8E37-6C54EB579C1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E4DD6FA-B7B8-426F-8E37-6C54EB579C1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E4DD6FA-B7B8-426F-8E37-6C54EB579C1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E4DD6FA-B7B8-426F-8E37-6C54EB579C1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18B73A31-4A03-4B5D-BE24-7B2E99C63C0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18B73A31-4A03-4B5D-BE24-7B2E99C63C0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18B73A31-4A03-4B5D-BE24-7B2E99C63C0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18B73A31-4A03-4B5D-BE24-7B2E99C63C0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

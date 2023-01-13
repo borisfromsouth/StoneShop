@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace StoneShop.Models.ViewModels
+namespace StoneShop_Models.ViewModels
 {
     public class HomeVM
     {

@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using StoneShop.Data;
-using StoneShop.Models;
-using StoneShop.Models.ViewModels;
-using StoneShop.Utility;
+using StoneShop_DataAccess;
+using StoneShop_Models;
+using StoneShop_Models.ViewModels;
+using StoneShop_Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

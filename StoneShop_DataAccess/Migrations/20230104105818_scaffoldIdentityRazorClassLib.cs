@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace StoneShop.Migrations
+namespace StoneShop_DataAccess
 {
     public partial class scaffoldIdentityRazorClassLib : Migration
     {
