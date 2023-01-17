@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StoneShop_DataAccess;
+using StoneShop_DataAccess.Repository;
+using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Utility;
 using System;
 
@@ -24,7 +26,6 @@ namespace StoneShop
         public void ConfigureServices(IServiceCollection services)  // добавляет сервисы в контейнер
         {
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            //services.AddScoped<Service>();
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddDefaultTokenProviders()
                 .AddDefaultUI()
@@ -37,6 +38,8 @@ namespace StoneShop
                 Options.Cookie.HttpOnly = true;
                 Options.Cookie.IsEssential = true;
             });
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+
             services.AddControllersWithViews();
         }
 

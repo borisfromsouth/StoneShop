@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoneShop_DataAccess;
+using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Models;
 using StoneShop_Utility;
 using System.Collections.Generic;
@@ -10,16 +11,17 @@ namespace StoneShop.Controllers
     [Authorize(Roles = WebConstants.AdminRole)]
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _dataBase;
+        private readonly ICategoryRepository _categoryRepository;
+        //private readonly ApplicationDbContext _dataBase;
 
-        public CategoryController(ApplicationDbContext dataBase)
+        public CategoryController(ICategoryRepository categoryRepository)
         {
-            _dataBase = dataBase;
+            _categoryRepository = categoryRepository;
         }
 
         public IActionResult Index()
         {
-            IEnumerable<Category> objList = _dataBase.Category;
+            IEnumerable<Category> objList = _categoryRepository.GetAll();
             return View(objList);
         }
 
@@ -36,8 +38,8 @@ namespace StoneShop.Controllers
         {
             if (ModelState.IsValid)
             {
-                _dataBase.Category.Add(obj); // добавление записи
-                _dataBase.SaveChanges();     // созранение в БД
+                _categoryRepository.Add(obj); // добавление записи
+                _categoryRepository.Save();     // созранение в БД
                 return RedirectToAction("Index");  // возвращаемся на страниццу со всеми записями
             }
             return View(obj);
@@ -45,11 +47,11 @@ namespace StoneShop.Controllers
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public IActionResult Edit(int? id)
         {
-            if (/*id == null ||*/ id == 0) return NotFound();
+            if (id == null || id == 0) return NotFound();
 
-            var obj = _dataBase.Category.Find(id);
+            var obj = _categoryRepository.Find(id.GetValueOrDefault());
             if (obj == null) return NotFound();
 
             return View(obj);
@@ -61,8 +63,8 @@ namespace StoneShop.Controllers
         {
             if (ModelState.IsValid)
             {
-                _dataBase.Category.Update(obj);
-                _dataBase.SaveChanges();
+                _categoryRepository.Update(obj);
+                _categoryRepository.Save();
                 return RedirectToAction("Index");
             }
             return View(obj);
@@ -72,11 +74,11 @@ namespace StoneShop.Controllers
         {
             if (id == null || id == 0) return NotFound();
 
-            var obj = _dataBase.Category.Find(id);
+            var obj = _categoryRepository.Find(id.GetValueOrDefault());
             if (obj == null) return NotFound();
 
-            _dataBase.Category.Remove(obj);
-            _dataBase.SaveChanges();
+            _categoryRepository.Remove(obj);
+            _categoryRepository.Save();
             return RedirectToAction("Index");
         }
     }

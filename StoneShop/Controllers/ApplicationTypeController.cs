@@ -107,9 +107,6 @@ namespace StoneShop.Controllers
             _dataBase.ApplicationType.Remove(obj);
             _dataBase.SaveChanges();
             return RedirectToAction("Index");
-
-
         }
-
     }
 }
