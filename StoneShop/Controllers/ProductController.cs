@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoneShop_DataAccess;
+using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Models;
 using StoneShop_Models.ViewModels;
 using StoneShop_Utility;
@@ -17,18 +18,18 @@ namespace StoneShop.Controllers
     [Authorize(Roles = WebConstants.AdminRole)]
     public class ProductController : Controller
     {
-        private readonly ApplicationDbContext _dataBase;
+        private readonly IProductRepository _productRepository;
         private readonly IWebHostEnvironment _webHostEnviroment;
 
-        public ProductController(ApplicationDbContext dataBase, IWebHostEnvironment webHostEnviroment)
+        public ProductController(IProductRepository productRepository, IWebHostEnvironment webHostEnviroment)
         {
-            _dataBase = dataBase;
+            _productRepository = productRepository;
             _webHostEnviroment = webHostEnviroment;
         }
 
         public IActionResult Index()
         {
-            IEnumerable<Product> objList = _dataBase.Product.Include(u => u.Category).Include(u => u.ApplicationType);  // жадная загрузка (быстрая и экономная)
+            IEnumerable<Product> objList = _productRepository.GetAll(includeProperties: "Category,ApplicationType");  // добавляем дополнительные нужные нам таблицы 
 
             ////Слишком много обращений к БД
             //IEnumerable<Product> objList = _dataBase.Product;
@@ -41,7 +42,7 @@ namespace StoneShop.Controllers
             return View(objList);
         }
 
-        // операция GET показывает формочку
+        // GET показывает формочку
         [HttpGet]
         public IActionResult Upsert(int? id)  // Upsert - общий метод для создания и редактирования
         {
@@ -61,16 +62,8 @@ namespace StoneShop.Controllers
             ProductVM productVM = new ProductVM()
             {
                 Product = new Product(),
-                CategorySelectList = _dataBase.Category.Select(u => new SelectListItem
-                {
-                    Text = u.Name,
-                    Value = u.Id.ToString()
-                }),
-                ApplicationTypeSelectList = _dataBase.ApplicationType.Select(i => new SelectListItem
-                {
-                    Text = i.Name,
-                    Value = i.Id.ToString()
-                })
+                CategorySelectList = _productRepository.GetAllDropdownLists(WebConstants.CategoryName),
+                ApplicationTypeSelectList = _productRepository.GetAllDropdownLists(WebConstants.ApplicationTypeName)
             };
 
             if (id == null) 
@@ -79,7 +72,7 @@ namespace StoneShop.Controllers
             }
             else
             {
-                productVM.Product = _dataBase.Product.Find(id);
+                productVM.Product = _productRepository.Find(id.GetValueOrDefault());
                 if (productVM.Product == null)
                 {
                     return NotFound();
@@ -112,12 +105,12 @@ namespace StoneShop.Controllers
                     }
 
                     productVM.Product.Image = fileName + extension;
-                    _dataBase.Product.Add(productVM.Product);
+                    _productRepository.Add(productVM.Product);
                 }
                 else
                 {
                     // updating
-                    var objFromDb = _dataBase.Product.AsNoTracking().FirstOrDefault(U => U.Id == productVM.Product.Id);  // получаем старую запись из БД     AsNoTracking() отключает отслеживание сущности
+                    var objFromDb = _productRepository.FirstOrDefault(u => u.Id == productVM.Product.Id, isTracking: false);  // получаем старую запись из БД; AsNoTracking() отключает отслеживание сущности
                     if (files.Count > 0)
                     {
                         string upload = webRootPath + WebConstants.ImagePath;
@@ -142,25 +135,17 @@ namespace StoneShop.Controllers
                     {
                         productVM.Product.Image = objFromDb.Image;
                     }
-                    _dataBase.Product.Update(productVM.Product);
+                    _productRepository.Update(productVM.Product);
                 }
 
-                _dataBase.SaveChanges();
+                _productRepository.Save();
                 return RedirectToAction("Index");
             }
 
             // при невалидности модели список категорий не возвращается, так как мы вообще передаем только текущее значение
 
-            productVM.CategorySelectList = _dataBase.Category.Select(i => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
-            productVM.ApplicationTypeSelectList = _dataBase.ApplicationType.Select(i => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
+            productVM.CategorySelectList = _productRepository.GetAllDropdownLists(WebConstants.CategoryName);
+            productVM.ApplicationTypeSelectList = _productRepository.GetAllDropdownLists(WebConstants.ApplicationTypeName);
             return View(productVM);
 
         }
@@ -169,7 +154,7 @@ namespace StoneShop.Controllers
         {
             if (id == null || id == 0) return NotFound();
 
-            var obj = _dataBase.Product.Find(id);
+            var obj = _productRepository.Find(id.GetValueOrDefault());
             if (obj == null) return NotFound();
 
             string webRootPath = _webHostEnviroment.WebRootPath;
@@ -180,9 +165,9 @@ namespace StoneShop.Controllers
             {
                 System.IO.File.Delete(oldFile);
             }
-            
-            _dataBase.Product.Remove(obj);
-            _dataBase.SaveChanges();
+
+            _productRepository.Remove(obj);
+            _productRepository.Save();
             return RedirectToAction("Index");
         }
     }

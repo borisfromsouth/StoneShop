@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using StoneShop_DataAccess;
+using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Models;
 using StoneShop_Models.ViewModels;
 using StoneShop_Utility;
@@ -16,21 +17,21 @@ namespace StoneShop.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _bataBase;
+        private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext bataBase)
+        public HomeController( IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
-            _logger = logger;
-            _bataBase = bataBase;
+            _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public IActionResult Index()
         {
             HomeVM homeVM = new HomeVM()
             {
-                Products = _bataBase.Product.Include(u => u.Category).Include(u => u.ApplicationType),
-                Categorys = _bataBase.Category
+                Products = _productRepository.GetAll(includeProperties: "Category,ApplicationType"),
+                Categorys = _categoryRepository.GetAll()
             };
             return View(homeVM);
         }
@@ -47,7 +48,7 @@ namespace StoneShop.Controllers
 
             DetailsVM detailsVM = new DetailsVM()
             {
-                Product = _bataBase.Product.Include(u => u.Category).Include(u => u.ApplicationType).Where(u => u.Id == id).FirstOrDefault(),
+                Product = _productRepository.FirstOrDefault(u => u.Id == id, includeProperties: "Category,ApplicationType"),
                 ExistsInCart = false
             };
 
@@ -94,16 +95,5 @@ namespace StoneShop.Controllers
             HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);  // сохраняем корзину в сессии
             return RedirectToAction(nameof(Index));
         }
-
-        //public IActionResult Privacy()
-        //{
-        //    return View();
-        //}
-
-        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        //public IActionResult Error()
-        //{
-        //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        //}
     }
 }

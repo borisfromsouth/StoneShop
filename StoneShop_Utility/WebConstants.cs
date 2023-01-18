@@ -9,5 +9,8 @@
         public const string CustomerRole = "Customer";
 
         public const string AdminEmail = "sashaborisenko@tut.by";
+
+        public const string CategoryName = "Category";
+        public const string ApplicationTypeName = "ApplicationType";
     }
 }

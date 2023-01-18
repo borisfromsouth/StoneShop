@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using StoneShop_DataAccess;
+using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Models;
 using StoneShop_Models.ViewModels;
 using StoneShop_Utility;
@@ -19,16 +20,23 @@ namespace StoneShop.Controllers
     [Authorize]
     public class CartController : Controller
     {
-        private readonly ApplicationDbContext _database;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IEmailSender _emailSender;
+        private readonly IProductRepository _productRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IInquiryHeaderRepository _inquiryHeaderRepository;
+        private readonly IInquiryDetailRepository _inquiryDetailRepository;
 
         [BindProperty]
         public ProductUserVM ProductUserVM { get; set; }
 
-        public CartController(ApplicationDbContext database, IWebHostEnvironment webHostEnvironment, IEmailSender emailSender)
+        public CartController(IProductRepository productRepository, IUserRepository userRepository, IInquiryHeaderRepository inquiryHeaderRepository,
+                                IInquiryDetailRepository inquiryDetailRepository, IWebHostEnvironment webHostEnvironment, IEmailSender emailSender)
         {
-            _database = database;
+            _productRepository = productRepository;
+            _userRepository = userRepository;
+            _inquiryHeaderRepository = inquiryHeaderRepository;
+            _inquiryDetailRepository = inquiryDetailRepository;
             _webHostEnvironment = webHostEnvironment;
             _emailSender = emailSender;
         }
@@ -43,7 +51,7 @@ namespace StoneShop.Controllers
             }
 
             List<int> prodInCart = shoppingCartList.Select(u => u.ProductId).ToList();  // получаем только данные определенного поля 
-            IEnumerable<Product> productList = _database.Product.Where(u => prodInCart.Contains(u.Id));  // получаем список продуктов по списку id-шников в корзине
+            IEnumerable<Product> productList = _productRepository.GetAll(u => prodInCart.Contains(u.Id));  // получаем список продуктов по списку id-шников в корзине
 
 
             return View(productList);
@@ -85,12 +93,12 @@ namespace StoneShop.Controllers
             }
 
             List<int> prodInCart = shoppingCartList.Select(u => u.ProductId).ToList();  // получаем только данные определенного поля 
-            IEnumerable<Product> productList = _database.Product.Where(u => prodInCart.Contains(u.Id));  // получаем список продуктов по списку id-шников в корзине
+            IEnumerable<Product> productList = _productRepository.GetAll(u => prodInCart.Contains(u.Id));  // получаем список продуктов по списку id-шников в корзине
 
 
             ProductUserVM productUserVM = new ProductUserVM()
             {
-                User = _database.User.FirstOrDefault(u => u.Id == claim.Value),
+                User = _userRepository.FirstOrDefault(u => u.Id == claim.Value),
                 ProductList = productList.ToList()
             };
 
@@ -102,6 +110,9 @@ namespace StoneShop.Controllers
         [ActionName("Summary")]
         public async Task<IActionResult> SummaryPost(ProductUserVM productUserVM)
         {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
             string pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString() + "templates" +  
                                     Path.DirectorySeparatorChar.ToString() + "Inquiry.html";  // путь к шаблону email-сообшщения
 
@@ -123,6 +134,28 @@ namespace StoneShop.Controllers
             string messageBody = string.Format(HtmlBody, productUserVM.User.FullName, productUserVM.User.PhoneNumber, productUserVM.User.Email, productListSB.ToString());
             await _emailSender.SendEmailAsync(WebConstants.AdminEmail, subject, messageBody);
 
+            InquiryHeader inquiryHeader = new InquiryHeader()
+            {
+                UserId = claim.Value,
+                FullName = productUserVM.User.FullName,
+                PhoneNumber = productUserVM.User.PhoneNumber,
+                Email = productUserVM.User.Email,
+                InquiryDate = System.DateTime.Now
+            };
+
+            _inquiryHeaderRepository.Add(inquiryHeader);
+            _inquiryHeaderRepository.Save();
+
+            foreach (var product in productUserVM.ProductList)
+            {
+                InquiryDetail inquiryDetail = new InquiryDetail()
+                {
+                    InquiryHeaderId = inquiryHeader.Id,
+                    ProductId = product.Id
+                };
+                _inquiryDetailRepository.Add(inquiryDetail);
+            }
+            _inquiryDetailRepository.Save();
             return RedirectToAction("InquiryConfiguration");
         }
 
@@ -132,6 +165,5 @@ namespace StoneShop.Controllers
 
             return View();
         }
-
     }
 }

@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StoneShop_Models\StoneShop_Models.csproj" />
+    <ProjectReference Include="..\StoneShop_Utility\StoneShop_Utility.csproj" />
   </ItemGroup>
 
 </Project>

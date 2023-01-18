@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoneShop_DataAccess;
+using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Models;
 using StoneShop_Utility;
 using System.Collections.Generic;
@@ -10,17 +11,17 @@ namespace StoneShop.Controllers
     [Authorize(Roles = WebConstants.AdminRole)]
     public class ApplicationTypeController : Controller
     {
-        private readonly ApplicationDbContext _dataBase;
+        private readonly IApplicationTypeRepository _applicationTypeRepository;
 
-        public ApplicationTypeController(ApplicationDbContext dataBase)
+        public ApplicationTypeController(IApplicationTypeRepository applicationTypeRepository)
         {
-            _dataBase = dataBase;
+            _applicationTypeRepository = applicationTypeRepository;
         }
 
 
         public IActionResult Index()
         {
-            IEnumerable<ApplicationType> objList = _dataBase.ApplicationType;
+            IEnumerable<ApplicationType> objList = _applicationTypeRepository.GetAll();
             return View(objList);
         }
 
@@ -39,8 +40,8 @@ namespace StoneShop.Controllers
         {
             if (ModelState.IsValid)
             {
-                _dataBase.ApplicationType.Add(obj);
-                _dataBase.SaveChanges();
+                _applicationTypeRepository.Add(obj);
+                _applicationTypeRepository.Save();
                 return RedirectToAction("Index");
             }
             return View(obj);
@@ -55,7 +56,7 @@ namespace StoneShop.Controllers
             {
                 return NotFound();
             }
-            var obj = _dataBase.ApplicationType.Find(id);
+            var obj = _applicationTypeRepository.Find(id.GetValueOrDefault());
             if (obj == null)
             {
                 return NotFound();
@@ -71,41 +72,25 @@ namespace StoneShop.Controllers
         {
             if (ModelState.IsValid)
             {
-                _dataBase.ApplicationType.Update(obj);
-                _dataBase.SaveChanges();
+                _applicationTypeRepository.Update(obj);
+                _applicationTypeRepository.Save();
                 return RedirectToAction("Index");
             }
             return View(obj);
 
         }
 
-        ////GET - DELETE
-        //public IActionResult Delete(int? id)
-        //{
-        //    if (id == null || id == 0)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var obj = _dataBase.ApplicationType.Find(id);
-        //    if (obj == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(obj);
-        //}
-
         //POST - DELETE
         //[HttpPost]
         public IActionResult Delete(int? id)
         {
-            var obj = _dataBase.ApplicationType.Find(id);
+            var obj = _applicationTypeRepository.Find(id.GetValueOrDefault());
             if (obj == null)
             {
                 return NotFound();
             }
-            _dataBase.ApplicationType.Remove(obj);
-            _dataBase.SaveChanges();
+            _applicationTypeRepository.Remove(obj);
+            _applicationTypeRepository.Save();
             return RedirectToAction("Index");
         }
     }

@@ -39,6 +39,11 @@ namespace StoneShop
                 Options.Cookie.IsEssential = true;
             });
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IApplicationTypeRepository, ApplicationTypeRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IInquiryHeaderRepository, InquiryHeaderRepository>();
+            services.AddScoped<IInquiryDetailRepository, InquiryDetailRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddControllersWithViews();
         }

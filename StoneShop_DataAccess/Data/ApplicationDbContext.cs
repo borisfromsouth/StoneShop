@@ -18,5 +18,9 @@ namespace StoneShop_DataAccess
         public DbSet<Product> Product { get; set; }
 
         public DbSet<User> User { get; set; }
+
+        public DbSet<InquiryHeader> InquiryHeader { get; set; }
+
+        public DbSet<InquiryDetail> InquiryDetail { get; set; }
     }
 }
