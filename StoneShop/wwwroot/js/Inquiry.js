@@ -1,18 +1,18 @@
 ﻿var dataTable;
 
 $(document).ready(function () {
-    loadDataTable();
+    loadDataTable()
 });
 
 function loadDataTable() {
-    dataTable = $("#tdlData").DataTable({
+    dataTable = $("#tblData").DataTable({
         "ajax": {
-            "url":"/inquiry/GetInquiryList"
+            "url": "/inquiry/GetInquiryList"
         },
         "columns": [
             { "data": "id", "width": "10%" },
-            { "data": "fullname", "width": "15%" },
-            { "data": "phonenumber", "width": "15%" },
+            { "data": "fullName", "width": "15%" },
+            { "data": "phoneNumber", "width": "15%" },
             { "data": "email", "width": "15%" },
             {
                 "data": "id",
@@ -25,8 +25,8 @@ function loadDataTable() {
                         </div>
                     `;
                 },
-                "width":"5%"
+                "width": "5%"
             }
         ]
-    })
+    });
 }
