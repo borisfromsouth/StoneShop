@@ -14,8 +14,8 @@ namespace StoneShop.Controllers
         private readonly IInquiryHeaderRepository _inquiryHeaderRepository;
         private readonly IInquiryDetailRepository _inquiryDetailRepository;
 
-        //[BindProperty]
-        public InquiryVM InquiryVM { get; set; }
+		[BindProperty]
+		public InquiryVM InquiryVM { get; set; }
 
         public InquiryController(IInquiryHeaderRepository inquiryHeaderRepository, IInquiryDetailRepository inquiryDetailRepository)
         {
@@ -28,7 +28,13 @@ namespace StoneShop.Controllers
             return View();
         }
 
-        public IActionResult Detail(int id)
+        public IActionResult ConvertToCart(int id)
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Details(int id)
         {
             InquiryVM = new InquiryVM()
             {
@@ -36,6 +42,41 @@ namespace StoneShop.Controllers
                 InquiryDetail = _inquiryDetailRepository.GetAll(u => u.InquiryHeaderId == id, includeProperties:"Product")
             };
             return View(InquiryVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Details() // благодаря [BindProperty] можно не передавать напрямую модель из предсталения 
+        {
+            List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
+            InquiryVM.InquiryDetail = _inquiryDetailRepository.GetAll(u => u.InquiryHeaderId == InquiryVM.InquiryHeader.Id);
+
+            foreach (var detail in InquiryVM.InquiryDetail)
+            {
+                ShoppingCart shoppingCart = new ShoppingCart()
+                {
+                    ProductId = detail.ProductId
+                };
+                shoppingCartList.Add(shoppingCart);
+            }
+            HttpContext.Session.Clear();
+            HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);
+            HttpContext.Session.Set(WebConstants.SessionInquiryId, InquiryVM.InquiryHeader.Id);  // если значение 0 то в данной сессии не было работы с Inquiry
+            return RedirectToAction("Index", "Cart");
+        }
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public IActionResult Delete() // благодаря [BindProperty] можно не передавать напрямую модель из предсталения 
+        {
+            InquiryHeader inquiryHeader = _inquiryHeaderRepository.FirstOrDefault(u => u.Id == InquiryVM.InquiryHeader.Id);
+            IEnumerable<InquiryDetail> inquiryDetails = _inquiryDetailRepository.GetAll(u => u.InquiryHeaderId == InquiryVM.InquiryHeader.Id);
+
+            _inquiryDetailRepository.RemoveRange(inquiryDetails);
+            _inquiryHeaderRepository.Remove(inquiryHeader);
+            _inquiryHeaderRepository.Save();  // не важно какой применять, сохранится все 
+
+            return RedirectToAction("Index");
         }
 
         #region API CALLS

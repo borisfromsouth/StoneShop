@@ -79,6 +79,11 @@ namespace StoneShop_DataAccess.Repository
             this.dataBaseSet.Remove(entity);
         }
 
+        public void RemoveRange(IEnumerable<T> entity)
+        {
+            this.dataBaseSet.RemoveRange(entity);
+        }
+
         public void Save()
         {
             _dataBase.SaveChanges();

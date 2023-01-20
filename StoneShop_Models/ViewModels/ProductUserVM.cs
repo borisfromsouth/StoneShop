@@ -10,6 +10,7 @@ namespace StoneShop_Models.ViewModels
         }
 
         public User User { get; set; }
+
         public IList<Product> ProductList { get; set; }
     }
 }

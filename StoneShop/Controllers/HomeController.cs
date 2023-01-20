@@ -45,7 +45,6 @@ namespace StoneShop.Controllers
                 shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WebConstants.SessionCart); // если что-то есть то забираем на обработку 
             }
 
-
             DetailsVM detailsVM = new DetailsVM()
             {
                 Product = _productRepository.FirstOrDefault(u => u.Id == id, includeProperties: "Category,ApplicationType"),
@@ -74,7 +73,7 @@ namespace StoneShop.Controllers
             }
             shoppingCartList.Add(new ShoppingCart { ProductId = id });  // добавляем товар в корзину
             HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);  // сохраняем корзину в сессии
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         public IActionResult RemoveFromCart (int id)
