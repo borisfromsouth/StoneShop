@@ -53,7 +53,6 @@ namespace StoneShop.Controllers
             List<int> prodInCart = shoppingCartList.Select(u => u.ProductId).ToList();  // получаем только данные определенного поля 
             IEnumerable<Product> productList = _productRepository.GetAll(u => prodInCart.Contains(u.Id));  // получаем список продуктов по списку id-шников в корзине
 
-
             return View(productList);
         }
 
@@ -156,6 +155,7 @@ namespace StoneShop.Controllers
                 _inquiryDetailRepository.Add(inquiryDetail);
             }
             _inquiryDetailRepository.Save();
+            TempData[WebConstants.Success] = "Order successfully created";
             return RedirectToAction("InquiryConfiguration");
         }
 

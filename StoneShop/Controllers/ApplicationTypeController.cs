@@ -18,22 +18,17 @@ namespace StoneShop.Controllers
             _applicationTypeRepository = applicationTypeRepository;
         }
 
-
         public IActionResult Index()
         {
             IEnumerable<ApplicationType> objList = _applicationTypeRepository.GetAll();
             return View(objList);
         }
 
-
-        //GET - CREATE
         public IActionResult Create()
         {
             return View();
         }
 
-
-        //POST - CREATE
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(ApplicationType obj)
@@ -42,30 +37,30 @@ namespace StoneShop.Controllers
             {
                 _applicationTypeRepository.Add(obj);
                 _applicationTypeRepository.Save();
+                TempData[WebConstants.Success] = "Application type created successfully";
                 return RedirectToAction("Index");
             }
+            TempData[WebConstants.Error] = "Error while creating application type";
             return View(obj);
-
         }
 
-
-        //GET - EDIT
         public IActionResult Edit(int? id)
         {
             if (id == null || id == 0)
             {
                 return NotFound();
+                TempData[WebConstants.Error] = "Application type chose error";
             }
             var obj = _applicationTypeRepository.Find(id.GetValueOrDefault());
             if (obj == null)
             {
                 return NotFound();
+                TempData[WebConstants.Error] = "Application type not found";
             }
 
             return View(obj);
         }
 
-        //POST - EDIT
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(ApplicationType obj)
@@ -74,23 +69,24 @@ namespace StoneShop.Controllers
             {
                 _applicationTypeRepository.Update(obj);
                 _applicationTypeRepository.Save();
+                TempData[WebConstants.Success] = "Application type change successfully";
                 return RedirectToAction("Index");
             }
+            TempData[WebConstants.Error] = "Application type change error";
             return View(obj);
-
         }
 
-        //POST - DELETE
-        //[HttpPost]
         public IActionResult Delete(int? id)
         {
             var obj = _applicationTypeRepository.Find(id.GetValueOrDefault());
             if (obj == null)
             {
+                TempData[WebConstants.Error] = "Application type not found";
                 return NotFound();
             }
             _applicationTypeRepository.Remove(obj);
             _applicationTypeRepository.Save();
+            TempData[WebConstants.Success] = "Application type successfully delete";
             return RedirectToAction("Index");
         }
     }

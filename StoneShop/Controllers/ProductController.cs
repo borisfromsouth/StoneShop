@@ -31,35 +31,13 @@ namespace StoneShop.Controllers
         {
             IEnumerable<Product> objList = _productRepository.GetAll(includeProperties: "Category,ApplicationType");  // добавляем дополнительные нужные нам таблицы 
 
-            ////Слишком много обращений к БД
-            //IEnumerable<Product> objList = _dataBase.Product;
-            //foreach (var obj in objList)
-            //{
-            //    obj.Category = _dataBase.Category.FirstOrDefault(u => u.Id == obj.CategoryId);
-            //    obj.ApplicationType = _dataBase.ApplicationType.FirstOrDefault(u => u.Id == obj.ApplicationTypeId);
-            //}
-
             return View(objList);
         }
 
-        // GET показывает формочку
         [HttpGet]
         public IActionResult Upsert(int? id)  // Upsert - общий метод для создания и редактирования
         {
-            //IEnumerable<SelectListItem> CategoryDropDown = _dataBase.Category.Select(u => new SelectListItem
-            //{
-            //    Text = u.Name,
-            //    Value = u.Id.ToString()
-            //});
-
-            //ViewBag.CategoryDropDown = CategoryDropDown;  // ViewBag передает данные из контроллера в предстиавоение, но не наоборот
-            //ViewData["CategoryDropDown"] = CategoryDropDown;  // ViewData это словарь, [] - ключ, = - значение
-
-            //Product product = new Product();
-
-
-            // ^^^^^ Вместо кода сверху используем объект ViewModels => ProductVM ^^^^^
-            ProductVM productVM = new ProductVM()
+           ProductVM productVM = new ProductVM()
             {
                 Product = new Product(),
                 CategorySelectList = _productRepository.GetAllDropdownLists(WebConstants.CategoryName),
@@ -67,7 +45,8 @@ namespace StoneShop.Controllers
             };
 
             if (id == null) 
-            { 
+            {
+                TempData[WebConstants.Error] = "Product not found";
                 return View(productVM);
             }
             else
@@ -75,6 +54,7 @@ namespace StoneShop.Controllers
                 productVM.Product = _productRepository.Find(id.GetValueOrDefault());
                 if (productVM.Product == null)
                 {
+                    TempData[WebConstants.Error] = "Product not found";
                     return NotFound();
                 }
 
@@ -139,6 +119,7 @@ namespace StoneShop.Controllers
                 }
 
                 _productRepository.Save();
+                TempData[WebConstants.Success] = "Create/update product successfully done";
                 return RedirectToAction("Index");
             }
 
@@ -152,10 +133,18 @@ namespace StoneShop.Controllers
 
         public IActionResult Delete(int? id)
         {
-            if (id == null || id == 0) return NotFound();
+            if (id == null || id == 0) 
+            {
+                TempData[WebConstants.Error] = "Product not found";
+                return NotFound();
+            } 
 
             var obj = _productRepository.Find(id.GetValueOrDefault());
-            if (obj == null) return NotFound();
+            if (obj == null) 
+            {
+                TempData[WebConstants.Error] = "Product not found";
+                return NotFound();
+            } 
 
             string webRootPath = _webHostEnviroment.WebRootPath;
             string upload = webRootPath + WebConstants.ImagePath;
@@ -168,6 +157,7 @@ namespace StoneShop.Controllers
 
             _productRepository.Remove(obj);
             _productRepository.Save();
+            TempData[WebConstants.Success] = "Product created successfully";
             return RedirectToAction("Index");
         }
     }

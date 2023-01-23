@@ -12,7 +12,6 @@ namespace StoneShop.Controllers
     public class CategoryController : Controller
     {
         private readonly ICategoryRepository _categoryRepository;
-        //private readonly ApplicationDbContext _dataBase;
 
         public CategoryController(ICategoryRepository categoryRepository)
         {
@@ -25,13 +24,11 @@ namespace StoneShop.Controllers
             return View(objList);
         }
 
-        // операция GET показывает формочку
         public IActionResult Create()
         {
             return View();
         }
 
-        // операция Post возвращает данные
         [HttpPost]
         [ValidateAntiForgeryToken] // аттрибут-токен для защиты данных 
         public IActionResult Create(Category obj)
@@ -40,8 +37,10 @@ namespace StoneShop.Controllers
             {
                 _categoryRepository.Add(obj); // добавление записи
                 _categoryRepository.Save();     // созранение в БД
-                return RedirectToAction("Index");  // возвращаемся на страниццу со всеми записями
+                TempData[WebConstants.Success] = "Category Created Successfully";
+                return RedirectToAction("Index");
             }
+            TempData[WebConstants.Error] = "Error while creating category";
             return View(obj);
             
         }
@@ -49,10 +48,19 @@ namespace StoneShop.Controllers
         [HttpGet]
         public IActionResult Edit(int? id)
         {
-            if (id == null || id == 0) return NotFound();
+            if (id == null || id == 0) 
+            {
+                TempData[WebConstants.Error] = "Category not found";
+                return NotFound();
+            }
+            
 
             var obj = _categoryRepository.Find(id.GetValueOrDefault());
-            if (obj == null) return NotFound();
+            if (obj == null) 
+            {
+                TempData[WebConstants.Error] = "Category not found";
+                return NotFound();
+            } 
 
             return View(obj);
         }
@@ -65,20 +73,31 @@ namespace StoneShop.Controllers
             {
                 _categoryRepository.Update(obj);
                 _categoryRepository.Save();
+                TempData[WebConstants.Success] = "Category successfully changed";
                 return RedirectToAction("Index");
             }
+            TempData[WebConstants.Error] = "Error while edit category";
             return View(obj);
         }
 
         public IActionResult Delete(int? id)
         {
-            if (id == null || id == 0) return NotFound();
-
+            if (id == null || id == 0)
+            {
+                TempData[WebConstants.Error] = "Category not found";
+                return NotFound();
+            }
+            
             var obj = _categoryRepository.Find(id.GetValueOrDefault());
-            if (obj == null) return NotFound();
+            if (obj == null) 
+            {
+                TempData[WebConstants.Error] = "Category not found";
+                return NotFound();
+            } 
 
             _categoryRepository.Remove(obj);
             _categoryRepository.Save();
+            TempData[WebConstants.Success] = "Category successfully delete";
             return RedirectToAction("Index");
         }
     }

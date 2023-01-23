@@ -66,7 +66,6 @@ namespace StoneShop.Controllers
         }
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         public IActionResult Delete() // благодаря [BindProperty] можно не передавать напрямую модель из предсталения 
         {
             InquiryHeader inquiryHeader = _inquiryHeaderRepository.FirstOrDefault(u => u.Id == InquiryVM.InquiryHeader.Id);

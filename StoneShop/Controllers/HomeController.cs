@@ -73,6 +73,7 @@ namespace StoneShop.Controllers
             }
             shoppingCartList.Add(new ShoppingCart { ProductId = id });  // добавляем товар в корзину
             HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);  // сохраняем корзину в сессии
+            TempData[WebConstants.Success] = "Product add to cart";
             return RedirectToAction("Index");
         }
 
@@ -92,7 +93,8 @@ namespace StoneShop.Controllers
             }
 
             HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);  // сохраняем корзину в сессии
-            return RedirectToAction(nameof(Index));
+            TempData[WebConstants.Success] = "Product delete from cart";
+            return RedirectToAction("Index");
         }
     }
 }
