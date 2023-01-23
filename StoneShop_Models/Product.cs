@@ -5,6 +5,11 @@ namespace StoneShop_Models
 {
     public class Product
     {
+        public Product()
+        {
+            TempSqFt = 1;
+        }
+
         [Key]
         public int Id { get; set; }
 
@@ -20,7 +25,7 @@ namespace StoneShop_Models
 
         public string Image { get; set; }
 
-        [Display(Name= "Category Type")]
+        [Display(Name = "Category Type")]
         public int CategoryId { get; set; }
 
         [ForeignKey("CategoryId")]
@@ -31,5 +36,9 @@ namespace StoneShop_Models
 
         [ForeignKey("ApplicationTypeId")]
         public virtual ApplicationType ApplicationType { get; set; }
+
+        [NotMapped]  //  это свойство не заносится в БД
+        [Range(1, 10000)]
+        public int TempSqFt { get; set; }
     }
 }

@@ -31,6 +31,23 @@
 
                                         <p class="text-secondary">@Html.Raw(Model.Product.Description)</p>
                                     </div>
+                                    @if(User.IsInRole(WebConstants.AdminRole))
+                                    {
+                                        <div class="col-12">
+                                            SqFt:
+                                        </div>
+                                        <div class="col-12">
+                                            @if (Model.ExistsInCart) // если флаг наличия продукта в корзине true то изменять его количество в карточке запрещено
+                                            {
+                                                <input asp-for="@Model.Product.TempSqFt" disabled class="form-control" />
+                                            }
+                                            else
+                                            {
+                                                <input asp-for="@Model.Product.TempSqFt" class="form-control" />
+                                            }
+                                            <span asp-validation-for="@Model.Product.TempSqFt" class="text-danger"></span>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>

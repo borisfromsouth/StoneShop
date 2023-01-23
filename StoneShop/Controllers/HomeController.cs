@@ -63,7 +63,7 @@ namespace StoneShop.Controllers
         }
 
         [HttpPost,ActionName("Details")]
-        public IActionResult DetailsPost(int id)
+        public IActionResult DetailsPost(int id, DetailsVM detailsVM)
         {
             List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
             if(HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart) != null &&  // проверка на заполненность корзины
@@ -71,7 +71,7 @@ namespace StoneShop.Controllers
             {
                 shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WebConstants.SessionCart); // если что-то есть то забираем на обработку 
             }
-            shoppingCartList.Add(new ShoppingCart { ProductId = id });  // добавляем товар в корзину
+            shoppingCartList.Add(new ShoppingCart { ProductId = id, SqFt = detailsVM.Product.TempSqFt });  // добавляем товар в корзину
             HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);  // сохраняем корзину в сессии
             TempData[WebConstants.Success] = "Product add to cart";
             return RedirectToAction("Index");

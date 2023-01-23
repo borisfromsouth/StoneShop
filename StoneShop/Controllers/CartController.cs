@@ -47,11 +47,19 @@ namespace StoneShop.Controllers
             if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart) != null
                 && HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart).Count() > 0)
             {
-                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WebConstants.SessionCart);  // получаем данные в сессии
+                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WebConstants.SessionCart);  // получаем данные корзины из сессии
             }
 
-            List<int> prodInCart = shoppingCartList.Select(u => u.ProductId).ToList();  // получаем только данные определенного поля 
-            IEnumerable<Product> productList = _productRepository.GetAll(u => prodInCart.Contains(u.Id));  // получаем список продуктов по списку id-шников в корзине
+            List<int> prodInCart = shoppingCartList.Select(u => u.ProductId).ToList();  // получаем список id товаров
+            IEnumerable<Product> productListTemp = _productRepository.GetAll(u => prodInCart.Contains(u.Id));  // получаем список продуктов по списку id-шников
+            IList<Product> productList = new List<Product>();
+
+            foreach (var cartObj in shoppingCartList)
+            {
+                Product productTemp = productListTemp.FirstOrDefault(u => u.Id == cartObj.ProductId);
+                productTemp.TempSqFt = cartObj.SqFt;  // берем количество из корзины
+                productList.Add(productTemp);
+            }
 
             return View(productList);
         }
