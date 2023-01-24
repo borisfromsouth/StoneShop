@@ -46,7 +46,7 @@ namespace StoneShop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Details() // благодаря [BindProperty] можно не передавать напрямую модель из предсталения 
+        public IActionResult Details() // админ перемещает заказ в корзину
         {
             List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
             InquiryVM.InquiryDetail = _inquiryDetailRepository.GetAll(u => u.InquiryHeaderId == InquiryVM.InquiryHeader.Id);

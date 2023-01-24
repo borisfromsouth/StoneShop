@@ -67,8 +67,16 @@ namespace StoneShop.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Index")]
-        public IActionResult IndexPost()
+        public IActionResult IndexPost(IEnumerable<Product> productList)
         {
+            List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
+            foreach (Product product in productList)
+            {
+                shoppingCartList.Add(new ShoppingCart { ProductId = product.Id, SqFt = product.TempSqFt });
+            }
+
+            HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);
+
             return RedirectToAction("Summary");
         }
 
@@ -89,23 +97,50 @@ namespace StoneShop.Controllers
 
         public IActionResult Summary()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            User user;
+
+            if (User.IsInRole(WebConstants.AdminRole)) // либо сам заказ создаешь, либо чужой обрабатываешь
+            {
+                if(HttpContext.Session.Get<int>(WebConstants.SessionInquiryId) != 0)  // SessionInquiryId - константа номера обрабатываемого заказа
+                {
+                    // чужой заказ на обработке
+                    // берем заказ на обработку (из Inquriy в Корзину)
+                    InquiryHeader inquiryHeader = _inquiryHeaderRepository.FirstOrDefault(u => u.Id == HttpContext.Session.Get<int>(WebConstants.SessionInquiryId));
+                    user = new User()
+                    {
+                        Email = inquiryHeader.Email,
+                        FullName = inquiryHeader.FullName,
+                        PhoneNumber = inquiryHeader.PhoneNumber
+                    };
+                }
+                else  // свой заказ
+                {
+                    user = new User();
+                }
+            }
+            else // обычный пользователь
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+                // var user = User.FindFirstValue(ClaimTypes.Name);
+                
+                user = _userRepository.FirstOrDefault(u => u.Id == claim.Value);
+            }
 
             List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
             if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart) != null
                 && HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart).Count() > 0)
             {
-                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WebConstants.SessionCart);  // получаем данные в сессии
+                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WebConstants.SessionCart);  // получаем данные козины из сессии
             }
 
-            List<int> prodInCart = shoppingCartList.Select(u => u.ProductId).ToList();  // получаем только данные определенного поля 
-            IEnumerable<Product> productList = _productRepository.GetAll(u => prodInCart.Contains(u.Id));  // получаем список продуктов по списку id-шников в корзине
+            List<int> prodInCart = shoppingCartList.Select(u => u.ProductId).ToList();  // получаем id-шники продуктов в корзине
+            IEnumerable<Product> productList = _productRepository.GetAll(u => prodInCart.Contains(u.Id));  // получаем список продуктов по списку id-шников
 
 
             ProductUserVM productUserVM = new ProductUserVM()
             {
-                User = _userRepository.FirstOrDefault(u => u.Id == claim.Value),
+                User = user,
                 ProductList = productList.ToList()
             };
 
@@ -172,6 +207,20 @@ namespace StoneShop.Controllers
             HttpContext.Session.Clear();
 
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateCart(IEnumerable<Product> productList)
+        {
+            List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
+            foreach (Product product in productList)
+            {
+                shoppingCartList.Add(new ShoppingCart { ProductId = product.Id, SqFt = product.TempSqFt });
+            }
+
+            HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);
+            return RedirectToAction("Index");
         }
     }
 }
