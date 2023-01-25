@@ -199,28 +199,28 @@ namespace StoneShop.Controllers
                 }
 
                 StringBuilder  productListSB = new StringBuilder();
-                foreach(var prod in productUserVM.ProductList)
+                foreach(var prod in ProductUserVM.ProductList)
                 {
                     productListSB.Append($" - Name:{prod.Name} <span syle='font-size:14px;'> (ID: {prod.Id})</span><br />");  // добавляем строки с товарами 
                 }
 
                 // по сути в HtmlBody есть скобки {} поэтому получается подставка агрументов под номера 
-                string messageBody = string.Format(HtmlBody, productUserVM.User.FullName, productUserVM.User.PhoneNumber, productUserVM.User.Email, productListSB.ToString());
+                string messageBody = string.Format(HtmlBody, ProductUserVM.User.FullName, ProductUserVM.User.PhoneNumber, ProductUserVM.User.Email, productListSB.ToString());
                 await _emailSender.SendEmailAsync(WebConstants.AdminEmail, subject, messageBody);
 
                 InquiryHeader inquiryHeader = new InquiryHeader()
                 {
                     UserId = claim.Value,
-                    FullName = productUserVM.User.FullName,
-                    PhoneNumber = productUserVM.User.PhoneNumber,
-                    Email = productUserVM.User.Email,
+                    FullName = ProductUserVM.User.FullName,
+                    PhoneNumber = ProductUserVM.User.PhoneNumber,
+                    Email = ProductUserVM.User.Email,
                     InquiryDate = System.DateTime.Now
                 };
 
                 _inquiryHeaderRepository.Add(inquiryHeader);
                 _inquiryHeaderRepository.Save();
 
-                foreach (var product in productUserVM.ProductList)
+                foreach (var product in ProductUserVM.ProductList)
                 {
                     InquiryDetail inquiryDetail = new InquiryDetail()
                     {
