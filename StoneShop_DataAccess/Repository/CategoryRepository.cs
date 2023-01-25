@@ -14,7 +14,6 @@ namespace StoneShop_DataAccess.Repository
 
         public void Update(Category obj)
         {
-            //var objFromDataBase = _dataBase.Category.FirstOrDefault(u => u.Id == obj.Id);  // используется метод базового класса Repository
             var objFromDataBase = base.FirstOrDefault(u => u.Id == obj.Id);  // базовый метод + фильтр заполняется  из типа T, свойства в скобках
             if (objFromDataBase == null)
             {

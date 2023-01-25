@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using StoneShop_DataAccess;
 using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Models;
 using StoneShop_Models.ViewModels;
 using StoneShop_Utility;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -140,9 +140,16 @@ namespace StoneShop.Controllers
 
             ProductUserVM productUserVM = new ProductUserVM()
             {
-                User = user,
-                ProductList = productList.ToList()
+                User = user//,
+                //ProductList = productList.ToList() // нету количества товаров
             };
+
+            foreach (var cartObj in shoppingCartList)
+            {
+                Product productTemp = _productRepository.FirstOrDefault(u => u.Id == cartObj.ProductId);
+                productTemp.TempSqFt = cartObj.SqFt;
+                productUserVM.ProductList.Add(productTemp);
+            }
 
             return View(productUserVM);
         }
@@ -150,55 +157,81 @@ namespace StoneShop.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Summary")]
-        public async Task<IActionResult> SummaryPost(ProductUserVM productUserVM)
+        public async Task<IActionResult> SummaryPost(/*ProductUserVM productUserVM*/)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-
-            string pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString() + "templates" +  
+            
+            if (User.IsInRole(WebConstants.AdminRole))
+            {
+                // create order
+                var orderTotal = 0.0;
+                foreach (Product product in ProductUserVM.ProductList)
+                {
+                    orderTotal += product.TempSqFt * product.Price;
+                }
+                OrderHeader orderHeader = new OrderHeader()
+                {
+                    CreatedByUserId = claim.Value,
+                    FinalOrderTotal = orderTotal,
+                    City = ProductUserVM.User.City,
+                    Street = ProductUserVM.User.Street,
+                    State = ProductUserVM.User.State,
+                    PostCode = ProductUserVM.User.PostCode,
+                    FullName = ProductUserVM.User.FullName,
+                    Email = ProductUserVM.User.Email,
+                    PhoneNumber = ProductUserVM.User.PhoneNumber,
+                    OrderDate = DateTime.Now
+                };
+            }
+            else
+            { 
+                // create inquiry
+                string pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString() + "templates" +  
                                     Path.DirectorySeparatorChar.ToString() + "Inquiry.html";  // путь к шаблону email-сообшщения
 
-            var subject = "New Inquiry";
-            string HtmlBody = "";
+                var subject = "New Inquiry";
+                string HtmlBody = "";
 
-            using (StreamReader reader = System.IO.File.OpenText(pathToTemplate))  // загружаем код шаблона в тело сообщения
-            {
-                HtmlBody = reader.ReadToEnd();
-            }
-
-            StringBuilder  productListSB = new StringBuilder();
-            foreach(var prod in productUserVM.ProductList)
-            {
-                productListSB.Append($" - Name:{prod.Name} <span syle='font-size:14px;'> (ID: {prod.Id})</span><br />");  // добавляем строки с товарами 
-            }
-
-            // по сути в HtmlBody есть скобки {} поэтому получается подставка агрументов под номера 
-            string messageBody = string.Format(HtmlBody, productUserVM.User.FullName, productUserVM.User.PhoneNumber, productUserVM.User.Email, productListSB.ToString());
-            await _emailSender.SendEmailAsync(WebConstants.AdminEmail, subject, messageBody);
-
-            InquiryHeader inquiryHeader = new InquiryHeader()
-            {
-                UserId = claim.Value,
-                FullName = productUserVM.User.FullName,
-                PhoneNumber = productUserVM.User.PhoneNumber,
-                Email = productUserVM.User.Email,
-                InquiryDate = System.DateTime.Now
-            };
-
-            _inquiryHeaderRepository.Add(inquiryHeader);
-            _inquiryHeaderRepository.Save();
-
-            foreach (var product in productUserVM.ProductList)
-            {
-                InquiryDetail inquiryDetail = new InquiryDetail()
+                using (StreamReader reader = System.IO.File.OpenText(pathToTemplate))  // загружаем код шаблона в тело сообщения
                 {
-                    InquiryHeaderId = inquiryHeader.Id,
-                    ProductId = product.Id
+                    HtmlBody = reader.ReadToEnd();
+                }
+
+                StringBuilder  productListSB = new StringBuilder();
+                foreach(var prod in productUserVM.ProductList)
+                {
+                    productListSB.Append($" - Name:{prod.Name} <span syle='font-size:14px;'> (ID: {prod.Id})</span><br />");  // добавляем строки с товарами 
+                }
+
+                // по сути в HtmlBody есть скобки {} поэтому получается подставка агрументов под номера 
+                string messageBody = string.Format(HtmlBody, productUserVM.User.FullName, productUserVM.User.PhoneNumber, productUserVM.User.Email, productListSB.ToString());
+                await _emailSender.SendEmailAsync(WebConstants.AdminEmail, subject, messageBody);
+
+                InquiryHeader inquiryHeader = new InquiryHeader()
+                {
+                    UserId = claim.Value,
+                    FullName = productUserVM.User.FullName,
+                    PhoneNumber = productUserVM.User.PhoneNumber,
+                    Email = productUserVM.User.Email,
+                    InquiryDate = System.DateTime.Now
                 };
-                _inquiryDetailRepository.Add(inquiryDetail);
+
+                _inquiryHeaderRepository.Add(inquiryHeader);
+                _inquiryHeaderRepository.Save();
+
+                foreach (var product in productUserVM.ProductList)
+                {
+                    InquiryDetail inquiryDetail = new InquiryDetail()
+                    {
+                        InquiryHeaderId = inquiryHeader.Id,
+                        ProductId = product.Id
+                    };
+                    _inquiryDetailRepository.Add(inquiryDetail);
+                }
+                _inquiryDetailRepository.Save();
+                TempData[WebConstants.Success] = "Order successfully created";
             }
-            _inquiryDetailRepository.Save();
-            TempData[WebConstants.Success] = "Order successfully created";
             return RedirectToAction("InquiryConfiguration");
         }
 
