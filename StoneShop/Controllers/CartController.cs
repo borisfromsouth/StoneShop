@@ -26,12 +26,15 @@ namespace StoneShop.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IInquiryHeaderRepository _inquiryHeaderRepository;
         private readonly IInquiryDetailRepository _inquiryDetailRepository;
+        private readonly IOrderHeaderRepository _orderHeaderRepository;
+        private readonly IOrderDetailRepository _orderDetailRepository;
 
         [BindProperty]
         public ProductUserVM ProductUserVM { get; set; }
 
         public CartController(IProductRepository productRepository, IUserRepository userRepository, IInquiryHeaderRepository inquiryHeaderRepository,
-                                IInquiryDetailRepository inquiryDetailRepository, IWebHostEnvironment webHostEnvironment, IEmailSender emailSender)
+                              IInquiryDetailRepository inquiryDetailRepository, IWebHostEnvironment webHostEnvironment, IEmailSender emailSender,
+                              IOrderHeaderRepository orderHeaderRepository, IOrderDetailRepository orderDetailRepository)
         {
             _productRepository = productRepository;
             _userRepository = userRepository;
@@ -39,6 +42,8 @@ namespace StoneShop.Controllers
             _inquiryDetailRepository = inquiryDetailRepository;
             _webHostEnvironment = webHostEnvironment;
             _emailSender = emailSender;
+            _orderHeaderRepository = orderHeaderRepository;
+            _orderDetailRepository = orderDetailRepository;
         }
 
         public IActionResult Index()  // список всех товаров
@@ -67,7 +72,7 @@ namespace StoneShop.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Index")]
-        public IActionResult IndexPost(IEnumerable<Product> productList)
+        public IActionResult IndexPost(IEnumerable<Product> productList)  // повторная обработка товаров с учетом изменения их количества
         {
             List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
             foreach (Product product in productList)
@@ -77,7 +82,7 @@ namespace StoneShop.Controllers
 
             HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);
 
-            return RedirectToAction("Summary");
+            return RedirectToAction(nameof(Summary));
         }
 
         public IActionResult Remove(int id)
@@ -164,16 +169,10 @@ namespace StoneShop.Controllers
             
             if (User.IsInRole(WebConstants.AdminRole))
             {
-                // create order
-                var orderTotal = 0.0;
-                foreach (Product product in ProductUserVM.ProductList)
-                {
-                    orderTotal += product.TempSqFt * product.Price;
-                }
                 OrderHeader orderHeader = new OrderHeader()
                 {
-                    CreatedByUserId = claim.Value,
-                    FinalOrderTotal = orderTotal,
+                    CreatedByUserId = claim.Value,  //  id текущего пользователя
+                    FinalOrderTotal = ProductUserVM.ProductList.Sum(x => x.TempSqFt*x.Price),
                     City = ProductUserVM.User.City,
                     Street = ProductUserVM.User.Street,
                     State = ProductUserVM.User.State,
@@ -181,8 +180,25 @@ namespace StoneShop.Controllers
                     FullName = ProductUserVM.User.FullName,
                     Email = ProductUserVM.User.Email,
                     PhoneNumber = ProductUserVM.User.PhoneNumber,
-                    OrderDate = DateTime.Now
+                    OrderDate = DateTime.Now,
+                    OrderStatus = WebConstants.StatusPending
                 };
+                _orderHeaderRepository.Add(orderHeader);
+                _orderHeaderRepository.Save();
+
+                foreach (var product in ProductUserVM.ProductList)
+                {
+                    OrderDetail orderDetail = new OrderDetail()
+                    {
+                        OrderHeaderId = orderHeader.Id,
+                        ProductId = product.Id,
+                        Sqft = product.TempSqFt,
+                        PricePerSqFt = product.Price
+                    };
+                    _orderDetailRepository.Add(orderDetail);
+                }
+                _orderDetailRepository.Save();
+                return RedirectToAction("InquiryConfirmation", new { id = orderHeader.Id });
             }
             else
             { 
@@ -214,7 +230,7 @@ namespace StoneShop.Controllers
                     FullName = ProductUserVM.User.FullName,
                     PhoneNumber = ProductUserVM.User.PhoneNumber,
                     Email = ProductUserVM.User.Email,
-                    InquiryDate = System.DateTime.Now
+                    InquiryDate = DateTime.Now
                 };
 
                 _inquiryHeaderRepository.Add(inquiryHeader);
@@ -232,14 +248,15 @@ namespace StoneShop.Controllers
                 _inquiryDetailRepository.Save();
                 TempData[WebConstants.Success] = "Order successfully created";
             }
-            return RedirectToAction("InquiryConfiguration");
+            return RedirectToAction("InquiryConfirmation");
         }
 
-        public IActionResult InquiryConfiguration()
+        public IActionResult InquiryConfirmation(int id = 0)
         {
+            OrderHeader orderHeader = _orderHeaderRepository.FirstOrDefault(x => x.Id == id);
             HttpContext.Session.Clear();
 
-            return View();
+            return View(orderHeader);
         }
 
         [HttpPost]

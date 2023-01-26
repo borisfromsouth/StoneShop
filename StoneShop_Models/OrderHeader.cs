@@ -10,7 +10,6 @@ namespace StoneShop_Models
         public int Id { get; set; }
 
         public string CreatedByUserId { get; set; }
-
         [ForeignKey("CreatedByUserId")]
         public User CreatedBy { get; set; }
 
