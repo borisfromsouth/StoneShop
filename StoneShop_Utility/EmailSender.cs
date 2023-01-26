@@ -45,7 +45,7 @@ namespace StoneShop_Utility
                     client.Send(message);
                 }
             }
-            catch (Exception ex) { }
+            catch { }
         }
     }
 }

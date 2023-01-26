@@ -7,6 +7,7 @@ using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Models;
 using StoneShop_Models.ViewModels;
 using StoneShop_Utility;
+using StoneShop_Utility.BrainTree;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,13 +29,14 @@ namespace StoneShop.Controllers
         private readonly IInquiryDetailRepository _inquiryDetailRepository;
         private readonly IOrderHeaderRepository _orderHeaderRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
+        private readonly IBrainTreeGate _brainTreeGate;
 
         [BindProperty]
         public ProductUserVM ProductUserVM { get; set; }
 
         public CartController(IProductRepository productRepository, IUserRepository userRepository, IInquiryHeaderRepository inquiryHeaderRepository,
                               IInquiryDetailRepository inquiryDetailRepository, IWebHostEnvironment webHostEnvironment, IEmailSender emailSender,
-                              IOrderHeaderRepository orderHeaderRepository, IOrderDetailRepository orderDetailRepository)
+                              IOrderHeaderRepository orderHeaderRepository, IOrderDetailRepository orderDetailRepository, IBrainTreeGate brainTreeGate)
         {
             _productRepository = productRepository;
             _userRepository = userRepository;
@@ -44,6 +46,7 @@ namespace StoneShop.Controllers
             _emailSender = emailSender;
             _orderHeaderRepository = orderHeaderRepository;
             _orderDetailRepository = orderDetailRepository;
+            _brainTreeGate = brainTreeGate;
         }
 
         public IActionResult Index()  // список всех товаров
@@ -122,6 +125,10 @@ namespace StoneShop.Controllers
                 {
                     user = new User();
                 }
+
+                var gateway = _brainTreeGate.GetGateway(); // данные для получения токена
+                var clientToken = gateway.ClientToken.Generate(); // получение токена клиента
+                ViewBag.ClientToken = clientToken; // токен используется только тут для представления
             }
             else // обычный пользователь
             {

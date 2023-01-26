@@ -10,6 +10,7 @@ using StoneShop_DataAccess;
 using StoneShop_DataAccess.Repository;
 using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Utility;
+using StoneShop_Utility.BrainTree;
 using System;
 
 namespace StoneShop
@@ -38,15 +39,17 @@ namespace StoneShop
                 Options.Cookie.HttpOnly = true;
                 Options.Cookie.IsEssential = true;
             });
+            services.Configure<BrainTreeSettings>(Configuration.GetSection("BrainTree"));  // помещаем значения из секции в свойства класса
+            services.AddSingleton<IBrainTreeGate, BrainTreeGate>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IApplicationTypeRepository, ApplicationTypeRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IInquiryHeaderRepository, InquiryHeaderRepository>();
             services.AddScoped<IInquiryDetailRepository, InquiryDetailRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
+
             services.AddScoped<IOrderHeaderRepository, OrderHeaderRepository>();
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
-
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddControllersWithViews();
         }
 

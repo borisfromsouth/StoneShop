@@ -48,14 +48,14 @@ namespace StoneShop.Controllers
         {
             if (id == null || id == 0)
             {
-                return NotFound();
                 TempData[WebConstants.Error] = "Application type chose error";
+                return NotFound();
             }
             var obj = _applicationTypeRepository.Find(id.GetValueOrDefault());
             if (obj == null)
             {
-                return NotFound();
                 TempData[WebConstants.Error] = "Application type not found";
+                return NotFound();
             }
 
             return View(obj);
