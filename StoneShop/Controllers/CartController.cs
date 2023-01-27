@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Braintree;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -103,6 +104,13 @@ namespace StoneShop.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult CleanCart()
+        {
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Index", "Home");
+        }
+
         public IActionResult Summary()
         {
             User user;
@@ -169,7 +177,7 @@ namespace StoneShop.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Summary")]
-        public async Task<IActionResult> SummaryPost(/*ProductUserVM productUserVM*/)
+        public async Task<IActionResult> SummaryPost(IFormCollection collection/*ProductUserVM productUserVM*/)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -205,6 +213,34 @@ namespace StoneShop.Controllers
                     _orderDetailRepository.Add(orderDetail);
                 }
                 _orderDetailRepository.Save();
+
+                string nonceFromTheClient = collection["payment_method_nonce"];
+                var request = new TransactionRequest
+                {
+                    Amount = Convert.ToDecimal(orderHeader.FinalOrderTotal), // сумма
+                    PaymentMethodNonce = nonceFromTheClient,
+                    OrderId = orderHeader.Id.ToString(),
+                    //DeviceData = deviceDataFromTheClient,
+                    Options = new TransactionOptionsRequest
+                    {
+                        SubmitForSettlement = true  // при запросе транзакции происходит автоматическое подтверждение
+                    }
+                };
+
+                var gateway = _brainTreeGate.GetGateway();
+                Result<Transaction> result = gateway.Transaction.Sale(request);
+
+                if(result.Target.ProcessorResponseText == "Approved")
+                {
+                    orderHeader.TransactionId = result.Target.Id;
+                    orderHeader.OrderStatus = WebConstants.StatusApproved;
+                }
+                else
+                {
+                    orderHeader.OrderStatus = WebConstants.StatusCancelled;
+                }
+                _orderDetailRepository.Save();
+
                 return RedirectToAction("InquiryConfirmation", new { id = orderHeader.Id });
             }
             else

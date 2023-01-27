@@ -142,11 +142,9 @@
                                 @if (User.IsInRole(WebConstants.AdminRole))
                                 {
                                     <div class="col-12">
-                                        <div class="wrapper">
-                                            <div class="checkout container">
-                                                <div id="dropin-container"></div>
-                                                <input id="nonce" name="payment_method_nonce" type="hidden" />
-                                            </div>
+                                        <div class="container">
+                                            <div id="dropin-container"></div>
+                                            <input id="nonce" name="payment_method_nonce" type="hidden" />
                                         </div>
                                     </div>
                                 }
@@ -175,7 +173,7 @@
 
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />
-    <script src="https://js.braintreegateway.com/web/dropin/1.33.7/js/dropin.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/dropin/1.33.7/js/dropin.min.js"></script>  @* открытие окна ввода данных карточки *@
 
     <script>
         var client_token = "@ViewBag.ClientToken";
@@ -186,7 +184,7 @@
             container: '#dropin-container'
         }, function (createErr, instance) {
                 form.addEventListener('submit', function () {
-                event.preventDefault(); // приостановка передачи данных
+                event.preventDefault(); // приостановка стандартного поведения передачи данных из формы
                 // add the nonce to the form and submit
                 instance.requestPaymentMethod(function (err, payload) {
                 // Передаем payload.nonce на сервер

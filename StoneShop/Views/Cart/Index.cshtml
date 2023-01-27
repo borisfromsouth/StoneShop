@@ -8,14 +8,15 @@
         <br />
         <div class="backgroundWhiteBorder">
             <div class="container row">
-                <div class="col -8">
+                <div class="col-12">
                     <div class="card mt-4">
-                        <div class="card-header bg-dark text-light ml-0 row container">
-                            <div class="col-6">
+                        <div class="card-header bg-dark text-light ml-0 container row" style="margin: auto">
+                            <div class="col-9">
                                 <i class="fa fa-shopping-cart"></i> &nbsp;
                                 Shopping Cart
                             </div>
-                            <div class="col-6 text-right">
+                            <div class="col-3 text-right">
+                                <a asp-action="CleanCart" class="btn btn-outline-warning btn-sm">Clean Cart</a>
                                 <a asp-controller="Home" asp-action="Index" class="btn btn-outline-info btn-sm">Continue Shopping</a>
                             </div>
                         </div>
