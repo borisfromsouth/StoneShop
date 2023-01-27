@@ -50,6 +50,13 @@ namespace StoneShop
             services.AddScoped<IOrderHeaderRepository, OrderHeaderRepository>();
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+
+            services.AddAuthentication().AddFacebook(Options =>
+            {
+                Options.AppId = "";
+                Options.AppSecret = "";
+            } );
+
             services.AddControllersWithViews();
         }
 
