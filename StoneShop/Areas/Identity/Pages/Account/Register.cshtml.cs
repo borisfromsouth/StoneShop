@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -121,14 +120,7 @@ namespace StoneShop.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        //if (!User.IsInRole(WebConstants.AdminRole))  // если админ уже был зареган то мы ничего не делаем
-                        //{
-                            await _signInManager.SignInAsync(user, isPersistent: false);
-                        //}
-                        //else
-                        //{
-                        //    return RedirectToAction("Index");
-                        //}
+                        await _signInManager.SignInAsync(user, isPersistent: false);
                         
                         return LocalRedirect(returnUrl);
                     }

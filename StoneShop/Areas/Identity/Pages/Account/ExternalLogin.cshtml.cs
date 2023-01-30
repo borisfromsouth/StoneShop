@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -13,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using StoneShop_Models;
+using StoneShop_Utility;
 
 namespace StoneShop.Areas.Identity.Pages.Account
 {
@@ -107,7 +106,8 @@ namespace StoneShop.Areas.Identity.Pages.Account
                 {
                     Input = new InputModel
                     {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        FullName = info.Principal.FindFirstValue(ClaimTypes.Name)
                     };
                 }
                 return Page();
@@ -127,11 +127,12 @@ namespace StoneShop.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+                var user = new User { UserName = Input.Email, Email = Input.Email, FullName = Input.FullName, PhoneNumber = Input.PhoneNumber }; // получаем из InputModel
 
-                var result = await _userManager.CreateAsync(user);
+                var result = await _userManager.CreateAsync(user); // добавили авторизовавщегося пользователя в _userManager
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, WebConstants.CustomerRole); // дали пользователю роль user (админы не могут авторизироваться через facebook)
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
