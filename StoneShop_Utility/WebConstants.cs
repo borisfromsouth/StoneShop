@@ -1,4 +1,7 @@
-﻿namespace StoneShop_Utility
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace StoneShop_Utility
 {
     public static class WebConstants
     {
@@ -23,5 +26,12 @@
         public const string StatusShipped = "Shipped";
         public const string StatusCancelled = "Cancelled";
         public const string StatusRefunded = "Refunded";
+
+        public static readonly IEnumerable<string> listStatus = new ReadOnlyCollection<string>(
+            new List<string>()
+            {
+                StatusPending, StatusApproved, StatusInProcess, StatusShipped, StatusCancelled, StatusRefunded
+            });
+            
     }
 }

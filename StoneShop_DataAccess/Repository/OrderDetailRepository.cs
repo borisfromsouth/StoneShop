@@ -3,18 +3,18 @@ using StoneShop_Models;
 
 namespace StoneShop_DataAccess.Repository
 {
-    public class InquiryDetailRepository : Repository<InquiryDetail>, IInquiryDetailRepository
+    public class OrderDetailRepository : Repository<OrderDetail>, IOrderDetailRepository
     {
         private readonly ApplicationDbContext _dataBase;
 
-        public InquiryDetailRepository(ApplicationDbContext dataBase) : base(dataBase)
+        public OrderDetailRepository(ApplicationDbContext dataBase) : base(dataBase)
         {
             _dataBase = dataBase;
         }
 
-        public void Update(InquiryDetail obj)
+        public void Update(OrderDetail obj)
         {
-            _dataBase.InquiryDetail.Update(obj);  // родной метод ApplicationDbContext, обновляет всю запись
+            _dataBase.OrderDetail.Update(obj);  // родной метод ApplicationDbContext, обновляет всю запись
         }
     }
 }
