@@ -20,7 +20,7 @@ namespace StoneShop.Controllers
 
 
         [BindProperty]
-		public OrderListVM OrderVM { get; set; }
+		public OrderVM OrderVM { get; set; }
 
         public OrderController(IOrderHeaderRepository orderHeaderRepository, IOrderDetailRepository orderDetailRepository, IBrainTreeGate brainTreeGate)
         {
@@ -29,7 +29,7 @@ namespace StoneShop.Controllers
             _brainTreeGate = brainTreeGate;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string searchName = null, string searchEmail = null, string searchPhone = null, string Status = null)
         {
             OrderListVM orderListVM = new OrderListVM()
             {
@@ -40,6 +40,24 @@ namespace StoneShop.Controllers
                     Value = i
                 })
             };
+
+            if (!string.IsNullOrEmpty(searchName))
+            {
+                orderListVM.OrderHeaderList = orderListVM.OrderHeaderList.Where(u => u.FullName.ToLower().Contains(searchName.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(searchEmail))
+            {
+                orderListVM.OrderHeaderList = orderListVM.OrderHeaderList.Where(u => u.Email.ToLower().Contains(searchEmail.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(searchPhone))
+            {
+                orderListVM.OrderHeaderList = orderListVM.OrderHeaderList.Where(u => u.PhoneNumber.ToLower().Contains(searchPhone.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(Status) && Status != "--Order Status--")
+            {
+                orderListVM.OrderHeaderList = orderListVM.OrderHeaderList.Where(u => u.OrderStatus.ToLower().Contains(Status.ToLower()));
+            }
+
             return View(orderListVM);
         }
 
@@ -48,16 +66,17 @@ namespace StoneShop.Controllers
         //    return View();
         //}
 
-        //[HttpGet]
-        //public IActionResult Details(int id)
-        //{
-        //    OrderVM = new OrderVM()
-        //    {
-        //        OrderHeader = _orderHeaderRepository.FirstOrDefault(u => u.Id == id),
-        //        OrderDetail = _orderDetailRepository.GetAll(u => u.OrderHeaderId == id, includeProperties:"Product")
-        //    };
-        //    return View(OrderVM);
-        //}
+        [HttpGet]
+        public IActionResult Details(int id)
+        {
+            OrderVM orderVM = new OrderVM()
+            {
+                OrderHeader = _orderHeaderRepository.FirstOrDefault(u => u.Id == id),
+                OrderDetail = _orderDetailRepository.GetAll(u => u.OrderHeaderId == id, includeProperties:"Product")
+            };
+            
+            return View(orderVM);
+        }
 
         //[HttpPost]
         //[ValidateAntiForgeryToken]
