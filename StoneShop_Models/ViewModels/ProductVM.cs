@@ -7,7 +7,6 @@ namespace StoneShop_Models.ViewModels
     public class ProductVM
     {
         // добавляем общие свойства к ProductController => Upsert который HttpGet
-
         public Product Product { get; set; }
 
         public IEnumerable<SelectListItem> CategorySelectList { get; set; }

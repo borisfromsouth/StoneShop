@@ -38,7 +38,7 @@ namespace StoneShop_Models
         public virtual ApplicationType ApplicationType { get; set; }
 
         [NotMapped]  //  это свойство не заносится в БД
-        [Range(1, 10000)]
+        [Range(1, 10000, ErrorMessage = "Sqft must be between 0 and 10000")]
         public int TempSqFt { get; set; }
     }
 }
