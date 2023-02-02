@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StoneShop_DataAccess;
+using StoneShop_DataAccess.Initializer;
 using StoneShop_DataAccess.Repository;
 using StoneShop_DataAccess.Repository.IRepository;
 using StoneShop_Utility;
@@ -39,7 +40,7 @@ namespace StoneShop
                 Options.Cookie.HttpOnly = true;
                 Options.Cookie.IsEssential = true;
             });
-            services.Configure<BrainTreeSettings>(Configuration.GetSection("BrainTree"));  // помещаем значени€ из секции в свойства класса
+            services.Configure<BrainTreeSettings>(Configuration.GetSection("BrainTree"));  // помещаем значени€ из секции "BrainTree" в appsettings в свойства класса
             services.AddSingleton<IBrainTreeGate, BrainTreeGate>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IApplicationTypeRepository, ApplicationTypeRepository>();
@@ -50,6 +51,7 @@ namespace StoneShop
             services.AddScoped<IOrderHeaderRepository, OrderHeaderRepository>();
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IDataBaseInitializer, DataBaseInitializer>();
 
             services.AddAuthentication().AddFacebook(Options =>
             {
@@ -60,7 +62,7 @@ namespace StoneShop
             services.AddControllersWithViews();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)  // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDataBaseInitializer dataBaseInitializer)
         {
             if (env.IsDevelopment())  // режим запуска приложени€
             {
@@ -76,8 +78,8 @@ namespace StoneShop
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            dataBaseInitializer.Initialize();
             app.UseSession();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();  // чтобы можно было юзать Razor Pages
