@@ -5,17 +5,14 @@
 		<button class="btn btn-dark filter-button" data-filter="all">All</button>
 		@foreach(var obj in Model.Categorys)
 		{
-			<button class="btn btn-outline-secondary filter-button" data-filter="@obj.Name.Replace(' ','_')">
-				@obj.Name
-			</button>
+			<button class="btn btn-outline-secondary filter-button" data-filter="@obj.Name.Replace(' ','_')">@obj.Name</button>
 		}
 	</div>
 	<br/>
 	<div class="row">
 		@foreach(var prod in Model.Products)
 		{
-			// чакстичное представление (лежат в Shared)
-			<partial name="_IndividualProductCard" model="prod" />
+			<partial name="_IndividualProductCard" model="prod" />  // чакстичное представление (лежат в Shared)
 		}
 	</div>
 </div>
@@ -25,7 +22,6 @@
 		$(document).ready(function(){
 
 			$(".filter-button").click(function(){   // клик по кнопке категории
-
 			var value = $(this).attr('data-filter');  // берет значение с filter-button
 			if(value == "all")                        // если значение All - показывает все 
 			{

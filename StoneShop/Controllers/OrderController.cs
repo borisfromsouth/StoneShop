@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Braintree;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using StoneShop_DataAccess.Repository.IRepository;
@@ -6,7 +7,7 @@ using StoneShop_Models;
 using StoneShop_Models.ViewModels;
 using StoneShop_Utility;
 using StoneShop_Utility.BrainTree;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 
 namespace StoneShop.Controllers
@@ -78,39 +79,70 @@ namespace StoneShop.Controllers
             return View(orderVM);
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Details() // админ перемещает заказ в корзину
-        //{
-        //    List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
-        //    OrderVM.OrderDetail = _orderDetailRepository.GetAll(u => u.OrderHeaderId == OrderVM.OrderHeader.Id);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateOrderDetails()
+        {
+            OrderHeader orderHeader = _orderHeaderRepository.FirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
+            orderHeader.FullName = OrderVM.OrderHeader.FullName;
+            orderHeader.PhoneNumber = OrderVM.OrderHeader.PhoneNumber;
+            orderHeader.Street = OrderVM.OrderHeader.Street;
+            orderHeader.City = OrderVM.OrderHeader.City;
+            orderHeader.State = OrderVM.OrderHeader.State;
+            orderHeader.PostCode = OrderVM.OrderHeader.PostCode;
+            orderHeader.Email = OrderVM.OrderHeader.Email;
+            _orderHeaderRepository.Save();
+            TempData[WebConstants.Success] = "Order Details Updated Successfully";
+            return RedirectToAction("Details", new { id = orderHeader.Id });
+        }
 
-        //    foreach (var detail in OrderVM.OrderDetail)
-        //    {
-        //        ShoppingCart shoppingCart = new ShoppingCart()
-        //        {
-        //            ProductId = detail.ProductId
-        //        };
-        //        shoppingCartList.Add(shoppingCart);
-        //    }
-        //    HttpContext.Session.Clear();
-        //    HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);
-        //    HttpContext.Session.Set(WebConstants.SessionInquiryId, OrderVM.OrderHeader.Id);  // если значение 0 то в данной сессии не было работы с Inquiry
-        //    return RedirectToAction("Index", "Cart");
-        //}
+        [HttpPost]
+        public IActionResult StartProcessing()
+        {
+            OrderHeader orderHeader = _orderHeaderRepository.FirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
+            orderHeader.OrderStatus = WebConstants.StatusInProcess;
+            _orderHeaderRepository.Save();
+            TempData[WebConstants.Success] = "Order Is In Progress";
+            return RedirectToAction("Index");
+        }
 
-        //[HttpPost]
-        //public IActionResult Delete() // благодаря [BindProperty] можно не передавать напрямую модель из предсталения 
-        //{
-        //    OrderHeader orderHeader = _orderHeaderRepository.FirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
-        //    IEnumerable<OrderDetail> orderDetails = _orderDetailRepository.GetAll(u => u.OrderHeaderId == OrderVM.OrderHeader.Id);
+        [HttpPost]
+        public IActionResult ShipOrder()
+        {
+            OrderHeader orderHeader = _orderHeaderRepository.FirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
+            orderHeader.OrderStatus = WebConstants.StatusShipped;
+            orderHeader.ShippingDate = DateTime.Now;
+            _orderHeaderRepository.Save();
+            TempData[WebConstants.Success] = "Order Shipped Successfully";
+            return RedirectToAction("Index");
+        }
 
-        //    _orderDetailRepository.RemoveRange(orderDetails);
-        //    _orderHeaderRepository.Remove(orderHeader);
-        //    _orderHeaderRepository.Save();  // не важно какой применять, сохранится все 
+        [HttpPost]
+        public IActionResult CancelOrder()
+        {
+            OrderHeader orderHeader = _orderHeaderRepository.FirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
 
-        //    return RedirectToAction("Index");
-        //}
+            /* Жизненный цикл оплаты: Авторизация -> Подтверждение для оплаты -> Оплата -> Оплачено
+               Каждый этап требует времени */
+            var gateway = _brainTreeGate.GetGateway();
+            Transaction transaction = gateway.Transaction.Find(orderHeader.TransactionId);
+            if (transaction.Status == TransactionStatus.AUTHORIZED || transaction.Status == TransactionStatus.SUBMITTED_FOR_SETTLEMENT) //
+            {
+                // возвращать деньги не нужно
+                Result<Transaction> resultVoid = gateway.Transaction.Void(orderHeader.TransactionId);
+            }
+            else
+            {
+                // возвращаем деньги
+                Result<Transaction> resultRefund = gateway.Transaction.Refund(orderHeader.TransactionId);
+            }
+
+            orderHeader.OrderStatus = WebConstants.StatusRefunded;
+            _orderHeaderRepository.Save();
+            TempData[WebConstants.Success] = "Order Cancelled Successfully";
+            return RedirectToAction("Index");
+        }
+
 
         #region API CALLS
 

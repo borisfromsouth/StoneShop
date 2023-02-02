@@ -1,5 +1,4 @@
 ﻿@using StoneShop_Utility
-
 @model StoneShop_Models.ViewModels.ProductUserVM
 
 <form method="post" id="payment-form">
@@ -7,12 +6,12 @@
     <div class="backgroundWhiteBorder">
         <div class="container">
             <div class="card">
-                <div class="card-header bg-dark text-light ml-0 row container">
-                    <div class="col-6">
+                <div class="card-header bg-dark text-light ml-0 row container" style="margin: auto">
+                    <div class="col-10">
                         <i class="fa fa-shopping-cart"></i> &nbsp;
                         Order Summary
                     </div>
-                    <div class="col-6 text-right">
+                    <div class="col-2" align="right">@*text-right*@
                         <a asp-action="Index" class="btn btn-outline-info btn-sm">Back to Cart</a>
                     </div>
                 </div>
@@ -115,7 +114,6 @@
                                                 @if (User.IsInRole(WebConstants.AdminRole))
                                                 {
                                                     <span class="text-muted">$@(Model.ProductList[i].Price*Model.ProductList[i].TempSqFt)</span>
-                                                    
                                                 }
                                                @* <div class="col-6 text-center">
                                                     <img src="@WebConstants.ImagePath@Model.ProductList[i].Image" class="rounded" width="100%" />
@@ -216,7 +214,6 @@
                 })
                 return false;
             }
-
             return true;
         }
     </script>

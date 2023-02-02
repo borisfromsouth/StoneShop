@@ -46,7 +46,6 @@ namespace StoneShop.Controllers
 
             if (id == null) 
             {
-                TempData[WebConstants.Error] = "Product not found";
                 return View(productVM);
             }
             else

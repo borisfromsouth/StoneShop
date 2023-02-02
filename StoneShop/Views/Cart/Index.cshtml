@@ -1,5 +1,4 @@
 ﻿@using StoneShop_Utility
-
 @model List<Product>
 
 @if (Model.Count() > 0)
@@ -15,8 +14,8 @@
                                 <i class="fa fa-shopping-cart"></i> &nbsp;
                                 Shopping Cart
                             </div>
-                            <div class="col-3 text-right">
-                                <a asp-action="CleanCart" class="btn btn-outline-warning btn-sm">Clean Cart</a>
+                            <div class="col-3" align="right">@*text-right*@
+                                <a asp-action="CleanCart" class="btn btn-outline-warning btn-sm mx-1">Clean Cart</a>
                                 <a asp-controller="Home" asp-action="Index" class="btn btn-outline-info btn-sm">Continue Shopping</a>
                             </div>
                         </div>
@@ -27,27 +26,17 @@
                                     </div>
                                     @if (User.IsInRole(WebConstants.AdminRole))
                                     {
-                                         <div class="col-12 col-lg-3">
-                                            Product Details
-                                        </div>
+                                         <div class="col-12 col-lg-3">Product Details</div>
                                     }
                                     else
                                     {
-                                        <div class="col-12 col-lg-7">
-                                            Product Details
-                                        </div>
+                                        <div class="col-12 col-lg-7">Product Details</div>
                                     }
-                                    <div class="col-12 col-lg-2">
-                                        Price per sqft
-                                    </div>
+                                    <div class="col-12 col-lg-2">Price per sqft</div>
                                     @if (User.IsInRole(WebConstants.AdminRole))
                                     {
-                                        <div class="col-6 col-lg-2">
-                                            Sqft
-                                        </div>
-                                        <div class="col-6 col-lg-2">
-                                            Total price:
-                                        </div>
+                                        <div class="col-6 col-lg-2">Sqft</div>
+                                        <div class="col-6 col-lg-2">Total price:</div>
                                     }
                                     <div class="col-6 col-sm-4 col-lg-1">
                                     </div>
@@ -62,7 +51,7 @@
                                 <input hidden asp-for="@Model[i].Id" />
                                 <div class="row h-100">
                                     <div class="col-4 col-md-2 text-center py-2">
-                                        <img src="@WebConstants.ImagePath@Model[i].Image" class="rounded" width="100%" />
+                                        <img src="@WebConstants.ImagePath@Model[i].Image" class="rounded" width="100" />
                                     </div>
                                     @if (User.IsInRole(WebConstants.AdminRole))
                                     {

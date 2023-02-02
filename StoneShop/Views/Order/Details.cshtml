@@ -1,4 +1,5 @@
-﻿@model StoneShop_Models.ViewModels.OrderVM
+﻿@using StoneShop_Utility;
+@model StoneShop_Models.ViewModels.OrderVM
 
 <form method="post">
 	<input asp-for="OrderHeader.Id" hidden />
@@ -99,11 +100,10 @@
 							</div>
 							<div class="row my-1">
 								<div class="col-9 offset-3">
-									<input type="submit" value="Update Order Details" class="btn btn-warning form-control" formaction="/Order/UpdateOrderDetails" formmethod="post"/>
+									<input asp-action="UpdateOrderDetails" type="submit" value="Update Order Details" class="btn btn-warning form-control" />@*formaction="/Order/UpdateOrderDetails" formmethod="post"*@
 								</div>
 							</div>
 						</div>
-
 						<div class="col-12 col-lg-5 offset-lg-1">
 							<h4 class="d-flex justify-content-between align-items-center mb-3">
 								<span class="text-info">Order Summary</span>
@@ -136,17 +136,27 @@
 								</li>
 							</ul>
 							<br />
-							<div class="pt-1">
-								<input type="submit" value="Start Progressing" class="btn btn-info form-control" />
-							</div>
-							<div class="pt-1">
-								<input type="submit" value="Ship Order" class="btn btn-primary form-control" />
-							</div>
-							<div class="pt-4">
-								<button type="submit" class="btn btn-danger form-control" formmethod="post">
-									Cancel Order
-								</button>
-							</div>
+							@if(Model.OrderHeader.OrderStatus == WebConstants.StatusApproved)
+							{
+								<div class="pt-1">
+									<input asp-action="StartProcessing" type="submit" value="Start Progressing" class="btn btn-info form-control" />
+								</div>
+							}
+							@if (Model.OrderHeader.OrderStatus == WebConstants.StatusInProcess)
+							{
+								<div class="pt-1">
+									<input asp-action="ShipOrder" type="submit" value="Ship Order" class="btn btn-primary form-control" />
+								</div>
+							}
+							@if (Model.OrderHeader.OrderStatus != WebConstants.StatusRefunded && 
+							     Model.OrderHeader.OrderStatus != WebConstants.StatusCancelled )
+							{
+								<div class="pt-4">
+									<button asp-action="CancelOrder" type="submit" class="btn btn-danger form-control" formmethod="post">
+										Cancel Order
+									</button>
+								</div>
+							}
 						</div>
 					</div>
 				</div>
